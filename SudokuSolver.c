@@ -3,52 +3,61 @@
 
 int board[9][9];
 
-int isSolved() {
+int isSafe(int row, int col, int num);
+int solve();
+
+int assignValue(int row, int col) {
+    for (int num = 1; num <= 9; num++) {
+        if (isSafe(row, col, num)) {
+            board[row][col] = num;
+
+            // Recursively solve the rest of the board
+            if (solve()) {
+                return 1;
+            }
+
+            // Backtrack
+            board[row][col] = 0;
+        }
+    }
+    return 0;  // Trigger backtracking
+}
+
+int isSafe(int row, int col, int num) {
+    // Check row
     for (int i = 0; i < 9; i++) {
+        if (board[row][i] == num)
+            return 0;
+    }
 
-        // Initialize row and column tracking arrays
-        int row[9] = {0};  // Array to track numbers seen in row
-        int column[9] = {0};  // Array to track numbers seen in column
+    // Check column
+    for (int i = 0; i < 9; i++) {
+        if (board[i][col] == num)
+            return 0;
+    }
 
+    // Check 3x3 sub-grid
+    int startRow = row - row % 3;
+    int startCol = col - col % 3;
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            if (board[startRow + i][startCol + j] == num)
+                return 0;
+        }
+    }
+
+    return 1;
+}
+
+int solve() {
+    for (int i = 0; i < 9; i++) {
         for (int j = 0; j < 9; j++) {
-
-            // Checking for valid numbers (1-9)
-            if (board[i][j] < 1 || board[i][j] > 9)
-                return 0;  // Invalid value
-
-            // Check if the number is repeated in the row
-            if (row[board[i][j] - 1] == 1) {
-                return 0;  // Duplicate found in row
-            } else {
-                row[board[i][j] - 1] = 1;  // Mark number as seen in the row
-            }
-
-            // Check if the number is repeated in the column
-            if (column[board[j][i] - 1] == 1) {
-                return 0;  // Duplicate found in column
-            } else {
-                column[board[j][i] - 1] = 1;  // Mark number as seen in the column
+            if (board[i][j] == 0) {
+                return assignValue(i, j);
             }
         }
     }
-
-    // Checking 9 3x3 sub-grids for duplicates
-    for (int gridRow = 0; gridRow < 9; gridRow += 3) {
-        for (int gridCol = 0; gridCol < 9; gridCol += 3) {
-            int grid[9] = {0};  // Array to track numbers seen in 3x3 grid
-            for (int row = gridRow; row < gridRow + 3; row++) {
-                for (int col = gridCol; col < gridCol + 3; col++) {
-                    if (grid[board[row][col] - 1] == 1) {
-                        return 0;  // Duplicate found in sub-grid
-                    } else {
-                        grid[board[row][col] - 1] = 1;  // Mark number as seen in grid
-                    }
-                }
-            }
-        }
-    }
-
-    return 1;  // No duplicates found, board is solved
+    return 1;  // Solved
 }
 
 void printSudoku() {
@@ -68,6 +77,50 @@ void printSudoku() {
     }
 }
 
+int isValidPuzzle() {
+    for (int i = 0; i < 9; i++) {
+        int row[9] = {0};
+        int column[9] = {0};
+        for (int j = 0; j < 9; j++) {
+            // Check rows
+            if (board[i][j] != 0) {
+                if (row[board[i][j] - 1] == 1) {
+                    return 0; // Duplicate found in row
+                }
+                row[board[i][j] - 1] = 1;
+            }
+
+            // Check columns
+            if (board[j][i] != 0) {
+                if (column[board[j][i] - 1] == 1) {
+                    return 0; // Duplicate found in column
+                }
+                column[board[j][i] - 1] = 1;
+            }
+        }
+    }
+
+    // Check 3x3 grids
+    for (int gridRow = 0; gridRow < 9; gridRow += 3) {
+        for (int gridCol = 0; gridCol < 9; gridCol += 3) {
+            int grid[9] = {0};
+            for (int i = gridRow; i < gridRow + 3; i++) {
+                for (int j = gridCol; j < gridCol + 3; j++) {
+                    if (board[i][j] != 0) {
+                        if (grid[board[i][j] - 1] == 1) {
+                            return 0; // Duplicate found in grid
+                        }
+                        grid[board[i][j] - 1] = 1;
+                    }
+                }
+            }
+        }
+    }
+
+    return 1; // Puzzle is valid
+}
+
+
 int main(int arg, char **argc) {
     if (arg != 82) {
         printf("invalid input: need all 81 values blank as 0");
@@ -81,9 +134,18 @@ int main(int arg, char **argc) {
     }
 
     printSudoku();
+
+    if (!isValidPuzzle()) {
+        printf("Sudoku is unsolvable: check values on board");
+    }
+
+   
+    printf("\nSolving...\n\n");
+    if (solve()) {
+        printSudoku();
+    } else {
+        printf("No solution exists.\n");
+    }
+
+    return 0;
 }
-
-
-
-
-
