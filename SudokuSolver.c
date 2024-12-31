@@ -6,6 +6,7 @@ int board[9][9];
 int isSafe(int row, int col, int num);
 int solve();
 
+// assign valid values (1 - 9) to specific row, coloumn
 int assignValue(int row, int col) {
     for (int num = 1; num <= 9; num++) {
         if (isSafe(row, col, num)) {
@@ -23,6 +24,7 @@ int assignValue(int row, int col) {
     return 0;  // Trigger backtracking
 }
 
+// check if the assigned value is valid according to sudoku logic
 int isSafe(int row, int col, int num) {
     // Check row
     for (int i = 0; i < 9; i++) {
@@ -49,6 +51,7 @@ int isSafe(int row, int col, int num) {
     return 1;
 }
 
+// start backtrack search for solution
 int solve() {
     for (int i = 0; i < 9; i++) {
         for (int j = 0; j < 9; j++) {
@@ -60,6 +63,7 @@ int solve() {
     return 1;  // Solved
 }
 
+// prints the sudoku board
 void printSudoku() {
     for (int i = 0; i < 9; i++) {
         if (i % 3 == 0)
@@ -77,6 +81,7 @@ void printSudoku() {
     }
 }
 
+// to check if the sudoku puzzle give is solvable 
 int isValidPuzzle() {
     for (int i = 0; i < 9; i++) {
         int row[9] = {0};
